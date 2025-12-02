@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Miguel's Länderanalyse – Check-Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .app {
+      width: 100%;
+      max-width: 780px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .brand-sub {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: radial-gradient(circle at top, #111827, #020617);
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 14px;
+    }
+    .card {
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      border-radius: 18px;
+      padding: 18px 16px 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+      border: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .tag-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pill {
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: rgba(15,23,42,0.9);
+      font-size: 0.75rem;
+    }
+    .counter {
+      font-size: 0.8rem;
+    }
+    .status-pill {
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid transparent;
+    }
+    .status-none { display: none; }
+    .status-correct {
+      display: inline-block;
+      background: rgba(22,163,74,0.15);
+      border-color: #16a34a;
+      color: #bbf7d0;
+    }
+    .status-partial {
+      display: inline-block;
+      background: rgba(234,179,8,0.15);
+      border-color: #eab308;
+      color: #facc15;
+    }
+    .status-wrong {
+      display: inline-block;
+      background: rgba(239,68,68,0.15);
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+    .question {
+      font-size: 1rem;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 1px rgba(79,70,229,0.5);
+    }
+    .label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 2px;
+    }
+    .result {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: none;
+      margin-top: 4px;
+    }
+    .result.visible { display: block; }
+    .result.correct {
+      background: rgba(22,163,74,0.12);
+      border: 1px solid #16a34a;
+      color: #bbf7d0;
+    }
+    .result.partial {
+      background: rgba(234,179,8,0.1);
+      border: 1px solid #eab308;
+      color: #facc15;
+    }
+    .result.wrong {
+      background: rgba(248,113,113,0.13);
+      border: 1px solid #ef4444;
+      color: #fecaca;
+    }
+    .solution {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    button {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      transition: background 0.15s, transform 0.1s, border-color 0.15s;
+    }
+    button.primary {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      border-color: transparent;
+      color: white;
+    }
+    button.small {
+      flex: 0;
+      padding-inline: 10px;
+      font-size: 0.75rem;
+    }
+    button:active {
+      transform: scale(0.97);
+    }
+    .hint {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+    ul {
+      margin-left: 18px;
+      margin-top: 6px;
+    }
+    .score-row {
+      display: flex;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .score-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: rgba(15,23,42,0.9);
+    }
+    .score-pill span { font-weight: 600; }
+    @media (min-width: 640px) {
+      .brand-title { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-title">Miguel's Länderanalyse</div>
+        <div class="brand-sub">Emerging Asia • Check-Quiz (Freitext)</div>
+      </div>
+      <div class="badge">HRW • WS 25/26</div>
+    </header>
+    <p class="subtitle">
+      Schreib deine Antwort in eigenen Worten. Ich checke automatisch, ob wichtige Schlüsselwörter drin sind (mind. 1–2 Treffer = teilweise / richtig).
+    </p>
+
+    <div class="score-row">
+      <div class="score-pill">✅ Richtig: <span id="scoreCorrect">0</span></div>
+      <div class="score-pill">🟡 Teilweise: <span id="scorePartial">0</span></div>
+      <div class="score-pill">❌ Falsch: <span id="scoreWrong">0</span></div>
+    </div>
+
+    <div class="card" id="card">
+      <div>
+        <div class="tag-row">
+          <span class="pill" id="topicPill">Thema</span>
+          <span class="counter" id="counter">1 / 1</span>
+          <span class="status-pill status-none" id="statusPill"></span>
+        </div>
+        <div class="question" id="questionText"></div>
+      </div>
+
+      <div>
+        <div class="label">Deine Antwort:</div>
+        <textarea id="userAnswer" placeholder="Schreib deine Definition/Erklärung hier rein..."></textarea>
+      </div>
+
+      <div>
+        <button class="primary" id="checkBtn">Prüfen</button>
+        <div class="result" id="resultBox">
+          <div id="resultText"></div>
+          <div class="solution">
+            Musterlösung:<br>
+            <span id="solutionText"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="prevBtn">⟵ Zurück</button>
+        <button id="clearBtn">Antwort löschen</button>
+        <button id="nextBtn">Weiter ⟶</button>
+        <button class="small" id="shuffleBtn">🔀 Shuffle</button>
+      </div>
+
+      <p class="hint">
+        Tipp: Nutze Stichworte wie „Übergang“, „Industrieland“, „FDI“, „Soft Power“ usw. – genau danach sucht der Checker.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        topic: "Emerging Markets",
+        q: "Definiere: Was sind Emerging Markets?",
+        solution: "Länder, die sich im Übergang vom Entwicklungsland zum Industrieland befinden – mit wachsendem Einkommen, Industrialisierung und stärkerer Einbindung in die Weltwirtschaft.",
+        keywords: [
+          ["übergang", "transition"],
+          ["entwicklungsland", "developing"],
+          ["industrieland", "industrial", "entwickeltes land"],
+          ["wachstum", "wachsende", "einkommen", "wohlstand"]
+        ]
+      },
+      {
+        topic: "Emerging Markets",
+        q: "Nenne typische Merkmale von Emerging Markets.",
+        solution: "Überdurchschnittliches Wachstumspotenzial, große Markt- und Expansionschancen für Unternehmen und Bedarf an speziellen Internationalisierungsstrategien.",
+        keywords: [
+          ["wachstum", "wachstumspotenzial"],
+          ["markt", "marktpote", "expansions"],
+          ["internationalisierung", "strategie", "strategien"]
+        ]
+      },
+      {
+        topic: "Emerging Asia",
+        q: "Was versteht man unter „Emerging Asia“ und welche Länder gehören typischerweise dazu?",
+        solution: "Eine Gruppe dynamisch wachsender asiatischer Volkswirtschaften, meist China, Indien, Malaysia, Thailand, Vietnam und die Philippinen.",
+        keywords: [
+          ["dynamisch", "wachsend"],
+          ["asiatisch", "asien"],
+          ["china", "indien", "malaysia", "thailand", "vietnam", "philippinen"]
+        ]
+      },
+      {
+        topic: "Länderklassifikation",
+        q: "Wie klassifiziert die Weltbank Länder nach Einkommen?",
+        solution: "Nach dem GNI pro Kopf (Einkommensniveau) in die Gruppen: Low Income, Lower Middle Income, Upper Middle Income und High Income.",
+        keywords: [
+          ["weltbank"],
+          ["gni", "einkommen", "pro kopf"],
+          ["low income", "low-income", "niedrig"],
+          ["middle income", "lower middle", "upper middle"],
+          ["high income", "hoch einkommen"]
+        ]
+      },
+      {
+        topic: "Länderklassifikation",
+        q: "Wie teilt die UNO Länder nach Entwicklungsstand ein?",
+        solution: "In Low Human Development, Medium Human Development und High Human Development, oft gemessen am Human Development Index (HDI).",
+        keywords: [
+          ["uno", "un"],
+          ["low human", "niedriges human"],
+          ["medium human", "mittleres human"],
+          ["high human", "hohes human"],
+          ["hdi", "human development index"]
+        ]
+      },
+      {
+        topic: "Länderklassifikation",
+        q: "Welche drei Gruppen verwendet der IMF für Länder?",
+        solution: "Low Income Developing Countries, Emerging Economies und Advanced Countries.",
+        keywords: [
+          ["imf", "iwf"],
+          ["low income"],
+          ["emerging"],
+          ["advanced"]
+        ]
+      },
+      {
+        topic: "Wirtschaftlicher Aufstieg",
+        q: "Erkläre BIP pro Kopf (GDP per capita) und warum es wichtig ist.",
+        solution: "BIP pro Kopf ist das Bruttoinlandsprodukt geteilt durch die Bevölkerungszahl und beschreibt die durchschnittliche Wirtschaftsleistung bzw. den Wohlstand pro Einwohner.",
+        keywords: [
+          ["bip pro kopf", "gdp per capita"],
+          ["bruttoinlandsprodukt", "bip"],
+          ["bevölkerung", "einwohner"],
+          ["durchschnitt", "wohlstand"]
+        ]
+      },
+      {
+        topic: "Wirtschaftlicher Aufstieg",
+        q: "Nenne mehrere Indikatoren, mit denen man den wirtschaftlichen Aufstieg asiatischer Länder beschreiben kann.",
+        solution: "BIP pro Kopf, BIP-Wachstum, Sektorenstruktur, Außenhandelsquote und ausländische Direktinvestitionen (FDI/ADI).",
+        keywords: [
+          ["bip pro kopf", "gdp per capita"],
+          ["wachstum", "bip-wachstum"],
+          ["sektorenstruktur", "sektor"],
+          ["außenhandelsquote", "außenhandel"],
+          ["fdi", "adi", "direktinvestition"]
+        ]
+      },
+      {
+        topic: "Fluggänsemodell",
+        q: "Beschreibe das Fluggänsemodell in 2–3 Sätzen.",
+        solution: "Ein Leitland wie Japan entwickelt bestimmte Industrien zuerst, importiert Rohstoffe, produziert und exportiert Industrieprodukte. Wenn Löhne steigen, werden arbeitsintensive Produktionen in Länder mit niedrigeren Löhnen verlagert. Diese Nachfolgeländer holen technologisch auf und durchlaufen ähnliche Entwicklungsstufen.",
+        keywords: [
+          ["leitland", "führendes land", "japan"],
+          ["rohstoffe", "import"],
+          ["produktion", "industrieprodukte", "export"],
+          ["löhne", "lohnkosten", "steigend"],
+          ["verlagert", "verlagerung"],
+          ["ärmere länder", "niedrigere löhne", "nachfolgeländer"]
+        ]
+      },
+      {
+        topic: "Zwischenstaatliche Beziehungen",
+        q: "Zähle die vier Teilbereiche der zwischenstaatlichen Wirtschaftsbeziehungen auf.",
+        solution: "Handel, Direktinvestitionen, Institutionen bzw. Wirtschaftsabkommen und das Geschäftsklima.",
+        keywords: [
+          ["handel"],
+          ["direktinvestition", "fdi"],
+          ["institution", "wirtschaftsabkommen", "freihandel", "wto"],
+          ["geschäftsklima", "business climate"]
+        ]
+      },
+      {
+        topic: "Handel",
+        q: "Erkläre Handelsvolumen, Handelsbilanz und Handelsstruktur.",
+        solution: "Handelsvolumen ist Export plus Import. Die Handelsbilanz ist Export minus Import (Überschuss bei mehr Exporten, Defizit bei mehr Importen). Die Handelsstruktur beschreibt, welche Arten von Gütern gehandelt werden, z. B. einfache Rohstoffe oder Hightech-Produkte.",
+        keywords: [
+          ["handelsvolumen", "export + import"],
+          ["handelsbilanz", "export - import"],
+          ["überschuss", "defizit"],
+          ["handelsstruktur", "güterstruktur", "arten von gütern"]
+        ]
+      },
+      {
+        topic: "Bedeutung Asiens",
+        q: "Nenne die wichtigsten Gründe, warum Asien für die deutsche Wirtschaft wichtig ist.",
+        solution: "Asien ist ein zentraler Handelspartner (Export von Autos, Maschinen, Hightech; Import von Elektronik, Textilien, Vorprodukten), Produktionsstandort in globalen Lieferketten und bietet wachsende Zukunftsmärkte durch steigende Mittelschichten und Infrastrukturbedarf.",
+        keywords: [
+          ["handelspartner", "handel"],
+          ["autos", "maschinen", "hightech", "chemie"],
+          ["elektronik", "textilien", "konsumgüter", "vorprodukte"],
+          ["produktion", "lieferkette", "supply chain"],
+          ["wachstum", "zukunftsmärkte", "mittelschicht"]
+        ]
+      },
+      {
+        topic: "Heckscher-Ohlin",
+        q: "Erkläre das Heckscher-Ohlin-Theorem.",
+        solution: "Es besagt, dass ein Land die Güter exportiert, für deren Produktion sein reichlich vorhandener Produktionsfaktor (Arbeit oder Kapital) intensiv genutzt wird, und die Güter importiert, bei denen der knappe Faktor intensiv ist.",
+        keywords: [
+          ["heckscher", "ohlin"],
+          ["produktionsfaktor", "arbeit", "kapital"],
+          ["reichlich", "relativ reich"],
+          ["knapp", "relativ knapp"],
+          ["exportiert", "importiert"]
+        ]
+      },
+      {
+        topic: "Heckscher-Ohlin",
+        q: "Wie passt die Handelsgüterstruktur zwischen Deutschland und vielen asiatischen Ländern zum Heckscher-Ohlin-Theorem?",
+        solution: "Deutschland mit viel Kapital exportiert vor allem kapitalintensive Güter wie Autos und Maschinen. Viele asiatische Länder mit viel Arbeitskraft exportieren eher arbeitsintensive Güter wie Textilien, Kleidung und einfachere Industriewaren.",
+        keywords: [
+          ["deutschland"],
+          ["kapitalintensiv", "autos", "maschinen"],
+          ["asiatisch", "asien"],
+          ["arbeitsintensiv", "textilien", "kleidung"]
+        ]
+      },
+      {
+        topic: "Politisches System",
+        q: "Was ist ein politisches System und welche drei Dimensionen unterscheidet man?",
+        solution: "Ein politisches System umfasst die Strukturen, Prozesse und Inhalte, die das Zusammenleben im Staat regeln. Man unterscheidet Policy (Inhalte, Programme, Ziele), Politics (Prozesse, Konflikte, Wahlen) und Polity (Strukturen, Verfassung, Institutionen).",
+        keywords: [
+          ["strukturen", "prozesse", "inhalte"],
+          ["zusammenleben", "staat"],
+          ["policy", "programme", "ziele"],
+          ["politics", "prozesse", "wahlen", "konflikte"],
+          ["polity", "verfassung", "institutionen"]
+        ]
+      },
+      {
+        topic: "Geopolitik",
+        q: "Was ist ein geopolitischer Schock? Nenne ein Beispiel und eine mögliche wirtschaftliche Folge.",
+        solution: "Ein geopolitischer Schock ist ein plötzliches politisch-ökonomisches Ereignis mit starken wirtschaftlichen Folgen, z. B. Terroranschläge, Kriege, Pandemien oder Handelskonflikte. Folgen können höhere Energiepreise, Rückzug ausländischer Investoren, Einbruch des Tourismus oder sinkender Konsum sein.",
+        keywords: [
+          ["geopolitisch"],
+          ["schock", "krise"],
+          ["terror", "krieg", "pandemie", "handelskonflikt", "zoll"],
+          ["energiepreise", "investoren", "tourismus", "konsum"]
+        ]
+      },
+      {
+        topic: "Soziale Struktur",
+        q: "Nenne verschiedene Dimensionen der Sozialstruktur eines Landes und jeweils ein Beispiel.",
+        solution: "Dimensionen sind z. B. demografische Struktur (Altersstruktur, Fertilitätsrate, Abhängigkeitsquote), Beschäftigung (Erwerbsbeteiligung, Beschäftigungsquote), Bildung (Bildungsstand), Ungleichheit (Gini, Armutsquote) und Gesundheit (Lebenserwartung, Säuglings- und Suizidsterblichkeit).",
+        keywords: [
+          ["demografisch", "altersstruktur", "fertilität", "abhängigkeitsquote"],
+          ["beschäftigung", "erwerbsbeteiligung"],
+          ["bildung", "bildungsstand"],
+          ["ungleichheit", "gini", "armutsquote"],
+          ["gesundheit", "lebenserwartung", "säuglings", "suizid"]
+        ]
+      },
+      {
+        topic: "Ungleichheit",
+        q: "Erkläre kurz Gini-Koeffizient und Armutsquote.",
+        solution: "Der Gini-Koeffizient misst die Ungleichverteilung von Einkommen zwischen Haushalten (0 = gleich, 1 bzw. 100 = sehr ungleich). Die Armutsquote gibt an, wie viel Prozent der Bevölkerung unterhalb der Armutsgrenze leben.",
+        keywords: [
+          ["gini"],
+          ["ungleichverteilung", "einkommen"],
+          ["armutsquote", "armut"],
+          ["armutsgrenze", "unterhalb"]
+        ]
+      },
+      {
+        topic: "Dualistische Struktur",
+        q: "Was ist eine dualistische Struktur in Wirtschaft und Gesellschaft? Nenne ein Beispiel.",
+        solution: "Sie beschreibt das Nebeneinander eines modernen, produktiven, oft exportorientierten Sektors und eines traditionellen, wenig produktiven Sektors. Beispiel: High-Tech-Städte und wohlhabende Küstenregionen gegenüber armen, agrarisch geprägten ländlichen Regionen.",
+        keywords: [
+          ["dualistisch", "duale struktur"],
+          ["modern", "exportorientiert"],
+          ["traditionell", "agrarisch", "wenig produktiv"],
+          ["beispiel", "stadt", "land", "küstenregion"]
+        ]
+      },
+      {
+        topic: "Eisbergmodell",
+        q: "Erkläre das Eisbergmodell der Kultur mit den Begriffen Perceptas und Conceptas.",
+        solution: "Das Eisbergmodell zeigt, dass nur ein kleiner Teil der Kultur sichtbar ist (Perceptas wie Verhalten, Rituale, Gebäude), während der größte Teil unsichtbar ist (Conceptas wie Werte, Normen, Denkweisen und Gefühle), die das sichtbare Verhalten erklären.",
+        keywords: [
+          ["eisberg"],
+          ["perceptas", "sichtbar", "verhalten", "rituale", "gebäude"],
+          ["conceptas", "unsichtbar", "werte", "normen", "denkweisen", "gefühle"]
+        ]
+      },
+      {
+        topic: "Asiatische Kultur",
+        q: "Nenne Beispiele für asiatische Kultur und passende Werte dahinter.",
+        solution: "Beispiele: K-Wave (K-Pop, Serien) steht für Attraktivität und Modernität; Essen mit Stäbchen und gemeinsames Essen für Gemeinschaft und Harmonie; langes Arbeiten und Leistungsdruck für Disziplin, Fleiß und Bildungserfolg.",
+        keywords: [
+          ["k-wave", "kpop", "k-pop", "k-drama"],
+          ["essen", "stäbchen", "reis"],
+          ["arbeit", "leistungsorientierung", "lange arbeitszeiten", "disziplin"],
+          ["gemeinschaft", "harmonie", "familie"]
+        ]
+      },
+      {
+        topic: "Soft Power",
+        q: "Definiere Soft Power und erkläre, wie Südkorea sie mit der K-Wave nutzt.",
+        solution: "Soft Power bedeutet, andere durch Attraktivität von Kultur, Werten und Politik zu beeinflussen statt durch Zwang und militärische oder wirtschaftliche Drohung (Hard Power). Südkorea nutzt K-Pop, Serien, Mode und Essen, um das Land attraktiv zu machen und Tourismus, Spracherwerb und Konsum koreanischer Produkte zu fördern.",
+        keywords: [
+          ["soft power"],
+          ["attraktivität", "anziehung", "kultur", "werte"],
+          ["kein zwang", "nicht militärisch", "hard power"],
+          ["k-wave", "kpop", "k-pop", "k-drama"],
+          ["tourismus", "produkte", "sprache"]
+        ]
+      },
+      {
+        topic: "Innovation",
+        q: "Was misst die „Taxonomy of Economic Activities based on R&D Intensity“ und was bedeutet technologische Intensität?",
+        solution: "Sie teilt Branchen nach ihrer Forschungs- und Entwicklungsintensität ein, also danach, wie hoch die F&E-Ausgaben im Verhältnis zur Wertschöpfung sind. Technologische Intensität beschreibt, wie stark ein Sektor auf Forschung, Entwicklung und Hightech basiert (High, Medium-High, Medium, Medium-Low, Low).",
+        keywords: [
+          ["taxonomy", "economic activities"],
+          ["r&d", "f&e", "forschung", "entwicklung"],
+          ["intensität"],
+          ["wertschöpfung"],
+          ["high tech", "high-tech", "technologisch"]
+        ]
+      }
+    ];
+
+    let index = 0;
+    const userTexts = Array(questions.length).fill("");
+    const userStatuses = Array(questions.length).fill(null);
+    let scoreCorrect = 0, scorePartial = 0, scoreWrong = 0;
+
+    const topicPill = document.getElementById("topicPill");
+    const counter = document.getElementById("counter");
+    const statusPill = document.getElementById("statusPill");
+    const questionText = document.getElementById("questionText");
+    const userAnswer = document.getElementById("userAnswer");
+    const resultBox = document.getElementById("resultBox");
+    const resultText = document.getElementById("resultText");
+    const solutionText = document.getElementById("solutionText");
+    const checkBtn = document.getElementById("checkBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const cardEl = document.getElementById("card");
+    const scoreCorrectEl = document.getElementById("scoreCorrect");
+    const scorePartialEl = document.getElementById("scorePartial");
+    const scoreWrongEl = document.getElementById("scoreWrong");
+
+    function updateScores() {
+      scoreCorrectEl.textContent = scoreCorrect;
+      scorePartialEl.textContent = scorePartial;
+      scoreWrongEl.textContent = scoreWrong;
+    }
+
+    function setStatusPill(status) {
+      statusPill.className = "status-pill";
+      if (!status) {
+        statusPill.classList.add("status-none");
+        statusPill.textContent = "";
+        return;
+      }
+      statusPill.classList.remove("status-none");
+      if (status === "correct") {
+        statusPill.classList.add("status-correct");
+        statusPill.textContent = "✅ Richtig";
+      } else if (status === "partial") {
+        statusPill.classList.add("status-partial");
+        statusPill.textContent = "🟡 Teilweise";
+      } else if (status === "wrong") {
+        statusPill.classList.add("status-wrong");
+        statusPill.textContent = "❌ Falsch";
+      }
+    }
+
+    function renderQuestion() {
+      const q = questions[index];
+      topicPill.textContent = q.topic;
+      counter.textContent = (index + 1) + " / " + questions.length;
+      questionText.textContent = q.q;
+      solutionText.textContent = q.solution;
+      userAnswer.value = userTexts[index] || "";
+      const status = userStatuses[index];
+      setStatusPill(status);
+      if (status) {
+        resultBox.className = "result visible " + status;
+        if (status === "correct") {
+          resultText.textContent = "Stark, Kernpunkte getroffen ✅";
+        } else if (status === "partial") {
+          resultText.textContent = "Teilweise richtig – ein, zwei Kernbegriffe fehlen noch.";
+        } else {
+          resultText.textContent = "Noch nicht ganz – vergleiche mit der Musterlösung.";
+        }
+      } else {
+        resultBox.className = "result";
+        resultText.textContent = "";
+      }
+    }
+
+    function evaluateAnswer() {
+      const q = questions[index];
+      const answer = (userAnswer.value || "").toLowerCase();
+      userTexts[index] = userAnswer.value;
+
+      if (!answer.trim()) {
+        alert("Schreib zuerst eine Antwort, bevor du prüfst 😉");
+        return;
+      }
+
+      let hitGroups = 0;
+      q.keywords.forEach(group => {
+        if (group.some(kw => answer.includes(kw))) {
+          hitGroups++;
+        }
+      });
+
+      const totalGroups = q.keywords.length;
+      let status;
+      if (hitGroups === 0) {
+        status = "wrong";
+      } else if (hitGroups === 1 || hitGroups / totalGroups < 0.5) {
+        status = "partial";
+      } else {
+        status = "correct";
+      }
+
+      const prevStatus = userStatuses[index];
+      if (prevStatus !== status) {
+        if (prevStatus === "correct") scoreCorrect--;
+        if (prevStatus === "partial") scorePartial--;
+        if (prevStatus === "wrong") scoreWrong--;
+
+        if (status === "correct") scoreCorrect++;
+        if (status === "partial") scorePartial++;
+        if (status === "wrong") scoreWrong++;
+        updateScores();
+      }
+
+      userStatuses[index] = status;
+      setStatusPill(status);
+      resultBox.className = "result visible " + status;
+
+      if (status === "correct") {
+        resultText.textContent = "Stark, Kernpunkte getroffen ✅";
+      } else if (status === "partial") {
+        resultText.textContent = "Teilweise richtig – ein, zwei Kernbegriffe fehlen noch.";
+      } else {
+        resultText.textContent = "Noch nicht ganz – vergleiche mit der Musterlösung.";
+      }
+    }
+
+    function nextQuestion() {
+      index = (index + 1) % questions.length;
+      renderQuestion();
+      userAnswer.focus();
+    }
+
+    function prevQuestion() {
+      index = (index - 1 + questions.length) % questions.length;
+      renderQuestion();
+      userAnswer.focus();
+    }
+
+    function shuffleQuestions() {
+      for (let i = questions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+        [userTexts[i], userTexts[j]] = [userTexts[j], userTexts[i]];
+        [userStatuses[i], userStatuses[j]] = [userStatuses[j], userStatuses[i]];
+      }
+      index = 0;
+      renderQuestion();
+      userAnswer.focus();
+    }
+
+    checkBtn.addEventListener("click", evaluateAnswer);
+    nextBtn.addEventListener("click", nextQuestion);
+    prevBtn.addEventListener("click", prevQuestion);
+    shuffleBtn.addEventListener("click", shuffleQuestions);
+    clearBtn.addEventListener("click", () => {
+      userAnswer.value = "";
+      userTexts[index] = "";
+      userStatuses[index] = null;
+      renderQuestion();
+      userAnswer.focus();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") nextQuestion();
+      if (e.key === "ArrowLeft") prevQuestion();
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        evaluateAnswer();
+      }
+    });
+
+    let startX = null;
+    cardEl.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+    cardEl.addEventListener("touchend", (e) => {
+      if (startX === null) return;
+      const endX = e.changedTouches[0].clientX;
+      const diff = endX - startX;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) nextQuestion();
+        else prevQuestion();
+      }
+      startX = null;
+    });
+
+    renderQuestion();
+    updateScores();
+    userAnswer.focus();
+  </script>
+</body>
+</html>
